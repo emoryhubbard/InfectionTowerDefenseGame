@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy element &apos;InstancePool.java&apos; to &apos;Kinematics/gdsoftworks.kinematics&apos;&#x0D;&#x0A;- Original project: &apos;App&apos;&#x0D;&#x0A;- Destination element: &apos;Kinematics/gdsoftworks.kinematics&apos;&#x0D;&#x0A;- Original element: &apos;com.gdsoftworks.app.InstancePool.java&apos;" description="Copy compilation unit" destination="=Kinematics/&lt;gdsoftworks.kinematics" element1="/&lt;com.gdsoftworks.app{InstancePool.java" files="0" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1383973983523" units="1" version="1.0"/>
+</session>

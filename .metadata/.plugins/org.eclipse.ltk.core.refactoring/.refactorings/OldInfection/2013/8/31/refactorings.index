@@ -1,0 +1,19 @@
+1375317813399	Rename method 'rectMap'
+1375317838936	Rename field 'graphicalRects'
+1375317956046	Rename field 'baseRects'
+1375318197956	Rename type 'Paddle'
+1375318642027	Rename field 'rects'
+1375322776783	Rename type 'RectangleAggregate'
+1375324158832	Delete element
+1375324462979	Rename method 'rectMap'
+1375327693093	Rename local variable 'ballBody'
+1375328930752	Delete element
+1375328969784	Delete element
+1375334094877	Delete element
+1375485212597	Rename local variable 'paddle'
+1375485238993	Rename method 'paintPaddle'
+1375487141316	Rename field 'SCREEN_PADDING'
+1375493726423	Move type
+1375493894560	Delete element
+1375494756686	Delete element
+1375504486705	Move type

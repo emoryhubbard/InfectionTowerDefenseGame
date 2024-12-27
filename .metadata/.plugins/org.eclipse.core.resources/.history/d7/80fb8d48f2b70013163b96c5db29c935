@@ -1,0 +1,49 @@
+package com.gdsoftworks.lilly;
+
+import java.awt.EventQueue;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import javax.imageio.ImageIO;
+
+public class RefreshLoop extends Thread {
+	ByteArrayInputStream inStream; 
+	BufferedImage frame = null; 
+	Monitor monitor;
+	LillyServer ds;
+	public RefreshLoop(LillyServer ds) {this.ds=ds;}
+	public void run() {
+		boolean terminated = false;
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {monitor = new Monitor();}
+		});
+		long startTime = System.nanoTime();
+		double deltaTime, frameTime = 0;
+		while (!terminated) {
+			deltaTime = (System.nanoTime()-startTime)/1000000000d;
+			startTime = System.nanoTime();
+			frameTime+=deltaTime;
+			if (Thread.interrupted()) {terminated=true; break;}
+			if (frameTime>1/20d) {
+				frameTime = 0;
+				try {
+					synchronized (ds) {
+						if (ds.frameIn!=null) {
+							inStream = new ByteArrayInputStream(ds.getFrame());
+							frame = ImageIO.read(inStream);
+						}
+					}
+					if (frame!=null) {
+						EventQueue.invokeLater(new Runnable() {
+							public void run() {monitor.getScreen().setFrame(frame);}
+						});
+					}
+				}
+				catch (Exception e) {System.out.println("Couldn't draw frame: "+e.getMessage());}
+			}
+		}
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {monitor.dispose();}
+		});
+		
+	}
+}

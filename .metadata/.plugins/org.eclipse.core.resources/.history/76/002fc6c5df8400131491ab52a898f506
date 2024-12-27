@@ -1,0 +1,43 @@
+package com.gdsoftworks.infectionbeta;
+
+import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.opengles.GL10;
+
+import com.gdsoftworks.androidapp.opengl.Camera2D;
+import com.gdsoftworks.androidapp.opengl.GLApp;
+import com.gdsoftworks.app.Screen;
+
+public class Infection extends GLApp {
+	{Assets.main = this;}
+	boolean startUp = true;
+	static final int WIDTH = 15; static final int HEIGHT = 10;
+	Camera2D camera;
+	public Screen getStartScreen() {return new MainMenuScreen(this);}
+	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+		camera = new Camera2D(getGLGraphics(), WIDTH, HEIGHT);
+		camera.zoom = 1;
+		super.onSurfaceCreated(gl, config);
+		if (startUp) {
+			Settings.load(getIO()); Assets.load(this); startUp=false;
+		}
+		else Assets.reload();
+	}
+	float x = 0; float y = 5; double startTime = System.nanoTime();
+	public void onDrawFrame(GL10 gl) {
+		gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+		gl.glEnable(GL10.GL_TEXTURE_2D);
+		gl.glEnable(GL10.GL_BLEND);
+		gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+		camera.setViewportAndMatrices();
+		double deltaTime = (System.nanoTime()-startTime)/1000000000d;
+		startTime = System.nanoTime();
+		x+=deltaTime;
+		Assets.tintBatcher.beginBatch(Assets.modelAtlas);
+		Assets.tintBatcher.drawSprite(x, y, 1.5, 1.5, Assets.slingIon);
+		Assets.tintBatcher.endBatch();
+	}
+	public void onPause() {
+		super.onPause();
+		if (Settings.soundEnabled) Assets.music.pause();
+	}
+}

@@ -1,0 +1,24 @@
+package com.gdsoftworks.androidapp.opengl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.gdsoftworks.app.ScreenAdapter;
+
+public abstract class GLScreen extends ScreenAdapter {
+	protected final GLApp glApp;
+	protected final GLGraphics glGraphics;
+	volatile protected List<RenderCommand> renderCommands = new ArrayList<RenderCommand>(10000);
+	public GLScreen(GLApp app) {super(app); glApp=app; glGraphics=app.getGLGraphics();}
+	protected void render(RenderCommand command) {renderCommands.add(command);}
+	protected BeginBatch newBeginBatch() {return glApp.beginPool.newObject();}
+	protected DrawSprite newDrawSprite() {return glApp.spritePool.newObject();}
+	protected DrawModel newDrawModel() {return glApp.modelPool.newObject();}
+	protected EndBatch newEndBatch() {return glApp.endPool.newObject();}
+	protected ChangeBlend newChangeBlend() {return glApp.blendPool.newObject();}
+	protected ChangeColor newChangeColor() {return glApp.colorPool.newObject();}
+	protected ChangeCamera newChangeCamera() {return glApp.cameraPool.newObject();}
+	protected Clear newClear() {return glApp.clearPool.newObject();}
+	protected Enable newEnable() {return glApp.enablePool.newObject();}
+	protected Disable newDisable() {return glApp.disablePool.newObject();}
+}

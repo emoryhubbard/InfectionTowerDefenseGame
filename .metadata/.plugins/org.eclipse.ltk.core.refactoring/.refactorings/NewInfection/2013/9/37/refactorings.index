@@ -1,0 +1,55 @@
+1378602389561	Change method 'grow'
+1378603079987	Change method 'deepGrow'
+1378603162808	Change method 'grow'
+1378603819827	Delete element
+1378611920215	Rename local variable 'increment'
+1378611994596	Rename local variable 'increment'
+1378612011616	Rename local variable 'increment'
+1378612061209	Rename local variable 'increment'
+1378612164059	Rename local variable 'increment'
+1378662277197	Rename method 'deepGrow'
+1378662371203	Rename method 'grow'
+1378662560993	Rename method 'grow'
+1378663636073	Rename method 'grow'
+1378664013586	Rename package 'gdsoftworks.mechanics'
+1378664539122	Rename package 'gdsoftworks.kinetics'
+1378684654202	Rename local variable 'initY'
+1378684669334	Rename local variable 'initX'
+1378757864502	Rename field 'parts'
+1378766412468	Rename field 'parts'
+1378767333949	Delete element
+1378767757272	Rename method 'deepSetBoundaries'
+1378790228824	Rename type 'Paddle'
+1378790270897	Rename local variable 'paddles'
+1378790281849	Rename field 'paddles'
+1378790299133	Rename method 'paddleList'
+1378790368648	Rename type 'Ball'
+1378790382049	Rename local variable 'balls'
+1378790398101	Rename field 'balls'
+1378790413623	Rename method 'ballList'
+1378790691929	Change method 'GameLoopData'
+1378790866915	Delete element
+1378792338163	Encapsulate field 'jointMap'
+1378792597359	Encapsulate field 'jointMap'
+1378851712927	Rename type 'Part'
+1378856539694	Rename method 'setBoundaries'
+1378856554857	Rename method 'setBoundaries'
+1378856807624	Rename method 'deepSetBoundaries'
+1378858837596	Move compilation unit
+1378858847845	Move compilation unit
+1378859012520	Delete element
+1378859738203	Change method 'deepIsOverlapping'
+1378871662408	Rename type 'BotFactory'
+1378871952873	Move compilation unit
+1378872019174	Move compilation unit
+1378872042340	Move compilation unit
+1378922898913	Delete element
+1379034906903	Rename method 'template'
+1379035156601	Rename method 'setAlpha'
+1379052229741	Rename local variable 'templates'
+1379052252159	Rename field 'templates'
+1379052275470	Rename method 'templates'
+1379105031652	Rename local variable 'leftX'
+1379105042166	Rename local variable 'leftY'
+1379105303529	Rename local variable 'spikeIncrement'
+1379135451968	Change method 'attachGadget'

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;AndroidApp/res/drawable-mdpi/ic_launcher-web.png&apos; to &apos;ic_launcher2.png&apos;" description="Rename resource &apos;ic_launcher-web.png&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="res/drawable-mdpi/ic_launcher-web.png" name="ic_launcher2.png" stamp="1382345639168" updateReferences="true"/>
+</session>

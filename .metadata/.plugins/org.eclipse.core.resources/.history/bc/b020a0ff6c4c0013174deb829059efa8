@@ -1,0 +1,64 @@
+package com.gdsoftworks.infectionbeta;
+
+import gdsoftworks.geometry.Vector;
+
+public class Card extends Widget {
+	double moveTime = .3;
+	Vector collapsedPoint = new Vector();
+	Vector expandedPoint = new Vector();
+	Vector moveVelocity = new Vector();
+	public Card(Vector collapsed, Vector expanded) {
+		super(collapsed.x, collapsed.y, 75, 75);
+		collapsedPoint.set(collapsed);
+		expandedPoint.set(expanded);
+		state = COLLAPSED;
+		moveVelocity.set(collapsedPoint);
+		moveVelocity.add(-expandedPoint.x, -expandedPoint.y);
+		moveVelocity.scale(1/moveTime);
+	}
+	public void recall() {
+		if (state==COLLAPSED) {
+			changeTime = 0;
+			state = RECALLED;
+		}
+	}
+	public void collapse() {
+		if (state==EXPANDED) {
+			changeTime = 0;
+			velocity.set(moveVelocity);
+			state = MOVING;
+		}
+	}
+	public void update(double deltaTime) {
+		super.update(deltaTime);
+		switch (state) {
+		case RECALLED:
+			changeTime = 0;
+			velocity.set(moveVelocity).rotate(Math.PI);
+			state = MOVING;
+			break;
+		case MOVING:
+			if (velocity.equals(moveVelocity)) {
+				if (changeTime>moveTime) {
+					changeTime = 0;
+					velocity.set(0, 0);
+					position.set(collapsedPoint);
+					bounds.lowerLeft.set(collapsedPoint.x-bounds.width/2,
+							collapsedPoint.y-bounds.height/2);
+					state = COLLAPSED;
+				}
+			}
+			else {
+				if (changeTime>moveTime) {
+					changeTime = 0;
+					velocity.set(0, 0);
+					position.set(expandedPoint);
+					bounds.lowerLeft.set(expandedPoint.x-bounds.width/2,
+							expandedPoint.y-bounds.height/2);
+					state = EXPANDED;
+					
+				}
+			}
+		}
+	}
+}

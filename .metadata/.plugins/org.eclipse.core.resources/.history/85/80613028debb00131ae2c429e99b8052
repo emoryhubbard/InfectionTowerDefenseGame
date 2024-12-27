@@ -1,0 +1,70 @@
+package com.gdsoftworks.lilly;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+public class LillyServer extends Thread implements Runnable {
+	public static BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+	public static int PORT = 9876;
+	DatagramSocket desktopSocket = null;
+	public static void main(String... args) throws Exception {
+		boolean terminated = false;
+		String sentence;
+		LillyServer server = null;
+		RefreshLoop rl = null;
+		FrameAssembler fa = null;
+		while (!terminated) {
+			sentence = in.readLine();
+			if (sentence.equalsIgnoreCase("connect") && server==null) {
+				server = new LillyServer();
+				server.start();
+				rl = new RefreshLoop(server);
+				rl.start();
+				fa = new FrameAssembler(server);
+				fa.start();
+				}
+			else if (sentence.equalsIgnoreCase("quit")) {
+				terminated = true;
+				System.out.println("*disconnecting...*");
+				if (server!=null) {server.interrupt(); rl.interrupt(); fa.interrupt();}
+			}
+		}
+		System.out.println("*terminated*");
+	}
+	volatile byte[] frameIn = null;
+	ConcurrentLinkedQueue<DatagramPacket> packetQueue = new ConcurrentLinkedQueue<DatagramPacket>();
+	public void run() {
+		boolean terminated = false;
+		System.out.println("*connecting...*");
+		try {desktopSocket = new DatagramSocket(PORT); System.out.println("*connected*");}
+		catch (Exception e) {System.out.println("connection error, restart server"); terminated=true;}
+		byte[] receiveBytes;
+		DatagramPacket receivePacket;
+		long startTime = System.nanoTime();
+		double deltaTime;
+		int totalBytes = 0;
+		while (!terminated) {
+			if (Thread.interrupted()) {terminated=true; break;}
+			deltaTime = System.nanoTime()-startTime;
+			receiveBytes = new byte[512];
+			receivePacket = new DatagramPacket(receiveBytes, receiveBytes.length);
+			try {desktopSocket.receive(receivePacket); totalBytes+=receivePacket.getLength();}
+			catch (Exception e) {System.out.println(e.getMessage()); continue;}
+			if (deltaTime/1000000000>1) {
+				System.out.println("*receiving "+totalBytes+"bps*");
+				startTime = System.nanoTime();
+				totalBytes = 0;
+			}
+			packetQueue.add(receivePacket);
+		}
+		System.out.println("*disconnected*");
+	}
+	public void interrupt() {super.interrupt(); desktopSocket.close();}
+	public void setFrame(byte[] frameIn) {this.frameIn = frameIn;}
+	public byte[] getFrame() {return frameIn;}
+	public DatagramPacket getPacket() {return packetQueue.poll();}
+	
+}

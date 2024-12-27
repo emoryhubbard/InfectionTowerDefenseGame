@@ -1,0 +1,70 @@
+package com.gdsoftworks.lilly;
+
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.net.DatagramPacket;
+
+import javax.imageio.ImageIO;
+
+public class FrameAssembler extends Thread {
+	LillyServer server;
+	public FrameAssembler(LillyServer server) {this.server=server;}
+	ByteArrayOutputStream baos;
+	BufferedImage testFrame = null;
+	public void run() {
+		boolean terminated = false;
+		try {
+			testFrame = ImageIO.read(new File("C:/Users/EDH/Pictures/pic/BetaTest/antenna5c.jpg"));
+			baos = new ByteArrayOutputStream();
+			ImageIO.write(testFrame, "jpg", baos);
+			baos.flush();
+			synchronized (server) {server.setFrame(baos.toByteArray());}
+		}
+		catch (Exception e) {System.out.println(e.getMessage()); terminated=true;}
+		byte[] receiveBytes;
+		String receiveText = null;
+		int packetLength;
+		baos = new ByteArrayOutputStream();
+		int bytesReceived = 0; @SuppressWarnings("unused")
+		int totalBytes = 0;
+		while (!terminated) {
+			if (Thread.interrupted()) {terminated=true; break;}
+			DatagramPacket packet = server.getPacket();
+			if (packet==null) continue;
+			receiveBytes = packet.getData();
+			packetLength = packet.getLength();
+			boolean shortPacket = packetLength<receiveBytes.length;
+			if (shortPacket) {
+				ByteArrayOutputStream textStream = new ByteArrayOutputStream();
+				textStream.write(receiveBytes, 0, packetLength);
+				receiveText = new String(textStream.toByteArray());
+			}
+			if (shortPacket && receiveText.equalsIgnoreCase("end frame")) {
+				try {baos.flush();} catch (Exception e) {System.out.println(e.getMessage());}
+				
+				synchronized (server) {server.setFrame(baos.toByteArray());}
+				//System.out.println("*received "+totalBytes+"-byte frame*");
+			}
+			else if (shortPacket && receiveText.equalsIgnoreCase("start frame")) {
+				baos = new ByteArrayOutputStream();
+				bytesReceived=totalBytes=0;
+				//System.out.println("*incoming frame*");
+			}
+			else if (shortPacket) {
+				try {baos.write(receiveBytes, 0, packetLength);}
+				catch (Exception e) {System.out.println(e.getMessage());}
+				//System.out.println("*received leftover*");
+			}
+			else {
+				try {baos.write(receiveBytes);} catch (Exception e) {System.out.println(e.getMessage());}
+				bytesReceived+=receiveBytes.length;
+				totalBytes+=receiveBytes.length;
+				if (bytesReceived>100000) {
+					//System.out.println("*received 100kb*");
+					bytesReceived = 0;
+				}
+			}
+		}
+	}
+}

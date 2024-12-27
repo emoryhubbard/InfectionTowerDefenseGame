@@ -1,0 +1,82 @@
+package com.machinemind.meerkat;
+
+import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.io.File;
+import java.io.FileInputStream;
+import javax.imageio.ImageIO;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import org.jcodec.api.FrameGrab;
+import org.jcodec.common.FileChannelWrapper;
+
+public class FeedWindow extends JFrame {
+	public static int WIDTH = 500;
+	public static int HEIGHT = 400;
+	private Feed feed = null;
+	public FeedWindow() {
+		setSize(WIDTH, HEIGHT);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setTitle("LillyMonitor");
+		feed = new Feed();
+		add(feed);
+		setVisible(true);
+	}
+	public void setFrame(Image frame) {feed.setFrame(frame);}
+	public class Feed extends JPanel {
+		Image frame = null;
+		public Feed() {
+			setLayout(new FlowLayout());
+			setVisible(true);
+			setAlwaysOnTop(true);
+		}
+		public void setFrame(Image frame) {this.frame=frame; repaint();}
+		public void paintComponent(Graphics g) {
+			super.paintComponent(g);
+			Graphics2D g2 = (Graphics2D) g;
+			try {
+				if (frame!=null) g2.drawImage(frame, 0, 0, 500, 400, 0, 0, frame.getWidth(null),
+						frame.getHeight(null), null);
+			} catch (Exception e) {System.out.println(e.getMessage());}
+		}
+		
+	}
+	public static void main(String[] args) {
+		FeedWindow feed = new FeedWindow();
+		File testVid = new File("C:/JavaStuff/Applications/Desktop/LillyCam/pullUps.mp4");
+		Image frame = null;
+		try {
+			frame = ImageIO.read(new File("C:/Users/EDH/Pictures/pic/BetaTest/antenna5c.jpg"));
+		}
+		catch (Exception ioe) {System.out.println(ioe.getMessage()); feed.dispose();}
+		feed.setFrame(frame);
+		double startTime = System.nanoTime();
+		double fps = 1/60d; double frameTime = 0;
+		boolean endVid = false;
+		FrameGrab grab = null;
+		FileInputStream fis = null;
+		try {fis=new FileInputStream(testVid);}catch(Exception e){System.out.println(e.getMessage());endVid=true;}
+		try {
+			grab = new FrameGrab(new FileChannelWrapper(fis.getChannel()));
+			grab.seekToSecondSloppy(1);
+		}
+		catch (Exception e) {System.out.println(e.getMessage()); endVid=true;}
+		for (;!endVid;) {
+			double deltaTime = (System.nanoTime()-startTime)/1000000000d;
+			startTime = System.nanoTime();
+			frameTime+=deltaTime;
+			if (frameTime>fps) {
+				try {
+					frame = grab.getFrame();
+					feed.setFrame(frame);
+				}
+				catch (Exception e) {System.out.println(e.getMessage()); endVid=true;}
+				frameTime=0;
+			}
+		}
+		try {fis.close();}catch(Exception e){System.out.println(e.getMessage());}
+	}
+}

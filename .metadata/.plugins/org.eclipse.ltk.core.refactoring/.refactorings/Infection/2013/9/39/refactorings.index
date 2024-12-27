@@ -1,0 +1,28 @@
+1379832495563	Delete element
+1379880633474	Delete element
+1379914074489	Rename method 'centerX'
+1379914087328	Rename method 'centerY'
+1379983010103	Rename type 'Joint'
+1379983489633	Rename method 'jointMap'
+1379984863434	Rename method 'joints'
+1379985903769	Rename local variable 'exemptJoints'
+1379995205735	Rename method 'getJoint'
+1379996214386	Rename method 'overlappingPart'
+1379996269438	Rename method 'overlappingPart'
+1379998006722	Rename method 'loadJoint'
+1379998033055	Rename method 'getJoint'
+1379998049092	Rename method 'loggedLoadJoint'
+1379998411481	Rename method 'loadJoints'
+1379999137368	Rename method 'writeJoint'
+1379999446498	Rename local variable 'joint'
+1380001127554	Rename local variable 'part'
+1380001459851	Rename resource 'bot.jt'
+1380001473017	Rename resource 'botController.jt'
+1380001482128	Rename resource 'removalTemplate.jt'
+1380001492346	Rename resource 'staticJoint.jt'
+1380001500271	Rename resource 'testGadget.jt'
+1380060606205	Copy package
+1380060691693	Move compilation unit
+1380061332323	Copy package
+1380061349639	Copy package
+1380094000829	Delete element

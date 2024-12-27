@@ -1,0 +1,29 @@
+1375743518151	Rename local variable 'rects'
+1375743531579	Rename local variable 'rect'
+1375743878252	Rename local variable 'rectColor'
+1375743951013	Rename local variable 'rect'
+1375748107481	Delete element
+1375748282249	Delete elements
+1375748430727	Delete element
+1375754006424	Delete element
+1375754012933	Delete element
+1375820881805	Rename field 'SCREEN'
+1375821804068	Rename local variable 'spikes'
+1375823908356	Rename field 'color'
+1375828911966	Rename field 'baseMap'
+1375835787443	Rename local variable 'layer'
+1375837809652	Rename field 'HEIGHT'
+1375891694156	Rename method 'baseMap'
+1375899515140	Rename type 'GraphicsList'
+1375900127001	Rename field 'logicalRects'
+1375901547675	Rename type 'BadBall'
+1375913552210	Rename local variable 'gon'
+1375919800178	Rename field 'PADDLE_SCREEN'
+1375985970381	Rename field 'graphicalLayers'
+1375987351735	Rename method 'testAndSetBoundaryDx'
+1375987984926	Rename type 'PlayerPaddle'
+1375988030447	Rename method 'playerPaddleList'
+1375988098665	Rename method 'badBallList'
+1376005145039	Rename type 'Background'
+1376005390006	Move compilation unit
+1376073900648	Delete element

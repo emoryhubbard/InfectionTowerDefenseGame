@@ -1,0 +1,266 @@
+package com.gdsoftworks.infectionbeta;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import gdsoftworks.geometry.Collision;
+import gdsoftworks.geometry.FastRectangle;
+import gdsoftworks.geometry.Vector;
+
+import javax.microedition.khronos.opengles.GL10;
+
+import com.gdsoftworks.androidapp.FPSCounter;
+import com.gdsoftworks.androidapp.opengl.Camera2D;
+import com.gdsoftworks.androidapp.opengl.GLApp;
+import com.gdsoftworks.androidapp.opengl.GLScreen;
+import com.gdsoftworks.androidapp.opengl.SpriteBatcher;
+import com.gdsoftworks.androidapp.opengl.TextureRegion;
+import com.gdsoftworks.app.UserInput.TouchEvent;
+
+public class LungLevelScreen extends GLScreen {
+	FPSCounter fpsCounter = new FPSCounter();
+	static final int RUNNING = 0;
+	static final int PAUSED = 1;
+	static final int ENDING = 2;
+	static final double FINGER_OFFSET = .75;
+	int state = RUNNING;
+	boolean expanded = false;
+	Vector touch = new Vector();
+	Camera2D camera = new Camera2D(glGraphics, 480, 320);
+	SpriteBatcher batcher = new SpriteBatcher(glGraphics, 10000);
+	LungLevel level;
+	LungLevelRenderer levelRenderer;
+	FastRectangle optionsBounds = new FastRectangle(426-64, 290-29, 128, 58);
+	FastRectangle resumeBounds = new FastRectangle(240-80, 220-46, 160, 92);
+	FastRectangle exitBounds = new FastRectangle(240-80, 220-120-46, 160, 92);
+	FastRectangle gadgetsBounds = new FastRectangle(0, 320-34, 200, 18);
+	FastRectangle scaffoldBounds = new FastRectangle(0, 320-81-17, 200, 18);
+	FastRectangle ionCatcherBounds = new FastRectangle(0, 320-60-17, 200, 18);
+	FastRectangle lipolyzerBounds = new FastRectangle(0, 320-120, 200, 18);
+	FastRectangle drexlerSawBounds = new FastRectangle(0, 320-54, 200, 18);
+	FastRectangle cBounds = new FastRectangle(396, 210, 30, 60);
+	FastRectangle ccBounds = new FastRectangle(426, 210, 30, 60);
+	List<Card> cards = new LinkedList<Card>(){
+		{
+			double distance = 480;
+			double height = 80; double width = 80;
+			double x = 80; double startX = 80;
+			double y = 320-80;
+			int col = 5;
+			for (int i=0; i<col; i++, x+=width)
+				add(new Card(new Vector(x, y+distance), new Vector(x, y)));
+			y-=height; x=startX;
+			for (int i=0; i<col; i++, x+=width)
+				add(new Card(new Vector(x-distance, y), new Vector(x, y)));
+			y-=height; x=startX;
+			for (int i=0; i<col; i++, x+=width)
+				add(new Card(new Vector(x, y-distance), new Vector(x, y)));
+			get(0).type = Card.SCAFFOLD;
+			get(1).type = Card.ION_CATCHER;
+			get(2).type = Card.LIPOLYZER;
+			get(3).type = Card.DREXLER_SAW;
+		}};
+	public GadgetsButton gadgetsButton = new GadgetsButton(cards);
+	public LungLevelScreen(GLApp glApp) {
+		super(glApp);
+		level = new LungLevel(new LungLevel.Player(){
+			public void zap() {Assets.playSound(Assets.spark);}
+			public void shoot() {Assets.playSound(Assets.shot);}
+			public void stick() {Assets.playSound(Assets.stick);}
+			public void cut() {Assets.playSound(Assets.cut);}});
+		levelRenderer = new LungLevelRenderer(glGraphics, batcher, level);
+	}
+	public void update(double deltaTime) {
+		app.getUserInput().getKeyEvents();
+		switch (state) {
+		case RUNNING: updateRunning(deltaTime); break;
+		case PAUSED: updatePaused();
+		}
+	}
+	Vector worldTouch = new Vector(); Vector guiTouch = new Vector();
+	public void updateRunning(double deltaTime) {
+		List<TouchEvent> events = app.getUserInput().getTouchEvents();
+		level.update(deltaTime);
+		gadgetsButton.update(deltaTime);
+		int length = events.size();
+		for (int i=0; i<length; i++) {
+			TouchEvent event = events.get(i);
+			touch.set(event.x, event.y);
+			guiTouch.set(touch);
+			worldTouch.set(touch);
+			camera.normalizeScreenPoint(guiTouch);
+			levelRenderer.camera.normalizeScreenPoint(worldTouch);
+			camera.normalizeScreenPoint(touch);
+			if (event.type==TouchEvent.TOUCH_DOWN) {
+				if (level.template!=null) {
+					if (Collision.rectContains(cBounds, touch))
+						level.spin = level.C;
+					if (Collision.rectContains(ccBounds, touch))
+						level.spin = level.CC;
+				}
+				else if (Collision.rectContains(optionsBounds, touch)) {
+					state = PAUSED; return;
+				}
+				else if (Collision.rectContains(gadgetsBounds, touch)) {
+					gadgetsButton.recall();
+					expanded = !expanded;
+				}
+				else if (expanded && Collision.rectContains(scaffoldBounds, touch)) {
+					touch.set(event.x, event.y);
+					levelRenderer.camera.normalizeScreenPoint(touch);
+					createGadget("scaffold", touch.x+FINGER_OFFSET, touch.y+FINGER_OFFSET);
+				}
+				else if (expanded && Collision.rectContains(ionCatcherBounds, touch)) {
+					touch.set(event.x, event.y);
+					levelRenderer.camera.normalizeScreenPoint(touch);
+					createGadget("ionCatcher", touch.x+FINGER_OFFSET, touch.y+FINGER_OFFSET);
+				}
+				else if (expanded && Collision.rectContains(lipolyzerBounds, touch)) {
+					touch.set(event.x, event.y);
+					levelRenderer.camera.normalizeScreenPoint(touch);
+					createGadget("lipolyzer", touch.x+FINGER_OFFSET, touch.y+FINGER_OFFSET);
+				}
+				else if (expanded && Collision.rectContains(drexlerSawBounds, touch)) {
+					touch.set(event.x, event.y);
+					levelRenderer.camera.normalizeScreenPoint(touch);
+					createGadget("drexlerSaw", touch.x+FINGER_OFFSET, touch.y+FINGER_OFFSET);
+				}
+				else {
+					touch.set(event.x, event.y);
+					levelRenderer.camera.normalizeScreenPoint(touch);
+					level.press(touch.x, touch.y);
+				}
+			}
+			if (event.type==TouchEvent.TOUCH_DRAGGED)
+				if (level.template!=null && !(Collision.rectContains(cBounds, touch)
+						|| Collision.rectContains(ccBounds, touch))) {
+					touch.set(event.x, event.y);
+					levelRenderer.camera.normalizeScreenPoint(touch);
+					level.move(touch.x+FINGER_OFFSET, touch.y+FINGER_OFFSET);
+				}
+			if (event.type==TouchEvent.TOUCH_UP) {
+				touch.set(event.x, event.y);
+				camera.normalizeScreenPoint(touch);
+				if (level.template!=null) level.spin = level.NONE;
+				if (level.template!=null && !(Collision.rectContains(cBounds, touch)
+							|| Collision.rectContains(ccBounds, touch))) {
+					level.attach(); level.destroy();
+				}
+				if (Collision.rectContains(gadgetsButton.bounds, guiTouch))
+					gadgetsButton.press(guiTouch);
+			}
+			if (event.type==TouchEvent.TOUCH_DRAGGED
+					|| event.type==TouchEvent.TOUCH_UP) {
+				touch.set(event.x, event.y);
+				levelRenderer.camera.normalizeScreenPoint(touch);
+				level.release(touch.x, touch.y);
+			}
+		}
+	}
+	public void createGadget(String name, double x, double y) {
+		level.destroy();
+		level.create(name, x, y);
+		expanded = false;
+	}
+	public void updatePaused() {
+		List<TouchEvent> events = app.getUserInput().getTouchEvents();
+		int length = events.size();
+		for (int i=0; i<length; i++) {
+			TouchEvent event = events.get(i);
+			touch.set(event.x, event.y);
+			camera.normalizeScreenPoint(touch);
+			if (event.type==TouchEvent.TOUCH_DOWN) {
+				if (Collision.rectContains(resumeBounds, touch)) {
+					state = RUNNING;
+				}
+				if (Collision.rectContains(exitBounds, touch)) {
+					glApp.setScreen(new MainMenuScreen(glApp));
+					Assets.setScreenOrientation(Assets.PORTRAIT);
+					return;
+				}
+			}
+		}
+	}
+	public void present() {
+		fpsCounter.logFrame();
+		GL10 gl = glGraphics.getGL();
+		gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+		gl.glEnable(GL10.GL_TEXTURE_2D);
+		levelRenderer.render();
+		
+		camera.setViewportAndMatrices();
+		gl.glEnable(GL10.GL_BLEND);
+		gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+		batcher.beginBatch(Assets.menuAtlas);
+		/**if (expanded) presentExpanded();
+		else presentCollapsed();**/
+		drawNanograms(gl, batcher, Integer.toString(level.nanograms), 115, 320-15);
+		if (level.template!=null)
+			batcher.drawSprite(426, 240, 60, 60, Assets.spinArrows);
+		batcher.drawSprite(gadgetsButton.position.x, gadgetsButton.position.y,
+				gadgetsButton.bounds.width, gadgetsButton.bounds.height, Assets.gadgetButton);
+		renderCards();
+		switch (state) {
+		case RUNNING: presentRunning(); break;
+		case PAUSED: presentPaused();
+		}
+		batcher.endBatch();
+		gl.glDisable(GL10.GL_BLEND);
+	}
+	private void renderCards() {
+		for (Card card: cards) {
+			batcher.drawSprite(card.position.x, card.position.y, card.bounds.width,
+					card.bounds.height, Assets.card);
+			TextureRegion inset = Assets.none;
+			switch (card.type) {
+			case Card.SCAFFOLD: inset = Assets.scaffold; break;
+			case Card.ION_CATCHER: inset = Assets.ionCatcher; break;
+			case Card.LIPOLYZER: inset = Assets.lipolyzer; break;
+			case Card.DREXLER_SAW: inset = Assets.drexlerSaw; break;
+			}
+			batcher.drawSprite(card.position.x, card.position.y, 75, 75, card.orientation,
+					inset);
+		}
+	}
+	/**private void presentExpanded() {
+		GL10 gl = glGraphics.getGL();
+		batcher.drawSprite(100, 160, 200, 320, Assets.expanded);
+		drawDigits(gl, batcher, Integer.toString(Scaffold.COST), 20, 320-90);
+		drawDigits(gl, batcher, Integer.toString(IonCatcher.COST), 20, 320-69);
+		drawDigits(gl, batcher, Integer.toString(Lipolyzer.COST), 20, 320-111);
+		drawDigits(gl, batcher, Integer.toString(DrexlerSaw.COST), 20, 320-69+21);
+		batcher.drawSprite(260, 160, 75, 75, Assets.gadgetButton);
+		batcher.drawSprite(260, 165, 55, 45, Assets.scaffold);
+	}
+	private void presentCollapsed() {
+		batcher.drawSprite(55+9, 320-17-6, 110, 34, Assets.gadgets);
+	}**/
+	private void drawNanograms(GL10 gl, SpriteBatcher batcher, String digits,
+			double x, double y) {
+		int length = digits.length();
+		for (int i=0; i<length; i++) {
+			int digitIndex = digits.charAt(i) - '0';
+			batcher.drawSprite(x, y, 8, 15, Assets.digits[digitIndex]);
+			x+=8;
+		}
+		x+=8;
+		batcher.drawSprite(x, y, 17, 15, Assets.ng);
+	}
+	/**private void drawDigits(GL10 gl, SpriteBatcher batcher, String digits,
+			double x, double y) {
+		int length = digits.length();
+		for (int i=0; i<length; i++) {
+			int digitIndex = digits.charAt(i) - '0';
+			batcher.drawSprite(x, y, 8, 15, Assets.digits[digitIndex]);
+			x+=8;
+		}
+	}**/
+	private void presentRunning() {
+		batcher.drawSprite(426, 290, 128, 58, Assets.options);
+	}
+	private void presentPaused() {
+		batcher.drawSprite(240, 220, 160, 92, Assets.resume);
+		batcher.drawSprite(240, 220-120, 160, 92, Assets.exit);
+	}
+	public void pause() {if (state==RUNNING) state=PAUSED;}
+}

@@ -1,0 +1,362 @@
+package com.gdsoftworks.infectionbeta;
+
+import gdsoftworks.kinematics.Particle;
+
+import javax.microedition.khronos.opengles.GL10;
+
+import com.gdsoftworks.androidapp.opengl.Animation;
+import com.gdsoftworks.androidapp.opengl.BeginBatch;
+import com.gdsoftworks.androidapp.opengl.BindTexture;
+import com.gdsoftworks.androidapp.opengl.Camera2D;
+import com.gdsoftworks.androidapp.opengl.ChangeBlend;
+import com.gdsoftworks.androidapp.opengl.ChangeCamera;
+import com.gdsoftworks.androidapp.opengl.ChangeColor;
+import com.gdsoftworks.androidapp.opengl.Clear;
+import com.gdsoftworks.androidapp.opengl.Disable;
+import com.gdsoftworks.androidapp.opengl.DrawModel;
+import com.gdsoftworks.androidapp.opengl.DrawSprite;
+import com.gdsoftworks.androidapp.opengl.Enable;
+import com.gdsoftworks.androidapp.opengl.EndBatch;
+import com.gdsoftworks.androidapp.opengl.GLGraphics;
+import com.gdsoftworks.androidapp.opengl.GLScreen;
+import com.gdsoftworks.androidapp.opengl.RenderCommand;
+import com.gdsoftworks.androidapp.opengl.SpriteBatcher;
+import com.gdsoftworks.androidapp.opengl.TextureRegion;
+import com.gdsoftworks.androidapp.opengl.Vertices;
+
+public class LungLevelRenderer {
+	static final int WIDTH = 15; static final int HEIGHT = 10;
+	Camera2D camera;
+	GLGraphics glGraphics;
+	LungLevel lungLevel;
+	Vertices platformModel;
+	Vertices antennaModel;
+	Vertices lyzerModel;
+	GLScreen screen;
+	float[] platformVertices = new float[16]; {
+		platformVertices[2] = 362/1024f; platformVertices[3] = 194/1024f;
+		platformVertices[6] = 553/1024f; platformVertices[7] = 7/1024f;
+		platformVertices[10] = 740/1024f; platformVertices[11] = 197/1024f;
+		platformVertices[14] = 549/1024f; platformVertices[15] = 384/1024f;
+	}
+	float[] scaffoldBaseVertices = new float[16]; {
+		scaffoldBaseVertices[2] = 166/1024f; scaffoldBaseVertices[3] = 125/1024f;
+		scaffoldBaseVertices[6] = 166/1024f; scaffoldBaseVertices[7] = 94/1024f;
+		scaffoldBaseVertices[10] = 196/1024f; scaffoldBaseVertices[11] = 94/1024f;
+		scaffoldBaseVertices[14] = 196/1024f; scaffoldBaseVertices[15] = 125/1024f;
+	}
+	float[] scaffoldExtensionVertices = new float[16]; {
+		scaffoldExtensionVertices[2] = 115/1024f; scaffoldExtensionVertices[3] = 113/1024f;
+		scaffoldExtensionVertices[6] = 115/1024f; scaffoldExtensionVertices[7] = 106/1024f;
+		scaffoldExtensionVertices[10] = 167/1024f; scaffoldExtensionVertices[11] = 106/1024f;
+		scaffoldExtensionVertices[14] = 167/1024f; scaffoldExtensionVertices[15] = 113/1024f;
+	}
+	float[] scaffoldSliderVertices = new float[16]; {
+		scaffoldSliderVertices[2] = 6/1024f; scaffoldSliderVertices[3] = 125/1024f;
+		scaffoldSliderVertices[6] = 6/1024f; scaffoldSliderVertices[7] = 94/1024f;
+		scaffoldSliderVertices[10] = 115/1024f; scaffoldSliderVertices[11] = 94/1024f;
+		scaffoldSliderVertices[14] = 115/1024f; scaffoldSliderVertices[15] = 125/1024f;
+	}
+	float[] antennaVertices = new float[28]; {
+		antennaVertices[2] = 10/1024f; antennaVertices[3] = 464/1024f;
+		antennaVertices[6] = 34/1024f; antennaVertices[7] = 440/1024f;
+		antennaVertices[10] = 39/1024f; antennaVertices[11] = 332/1024f;
+		antennaVertices[14] = 45/1024f; antennaVertices[15] = 323/1024f;
+		antennaVertices[18] = 66/1024f; antennaVertices[19] = 323/1024f;
+		antennaVertices[22] = 62/1024f; antennaVertices[23] = 443/1024f;
+		antennaVertices[26] = 84/1024f; antennaVertices[27] = 464/1024f;
+	}
+	float[] sphereVertices = new float[16]; {
+		sphereVertices[2] = 43/1024f; sphereVertices[3] = 323/1024f;
+		sphereVertices[6] = 43/1024f; sphereVertices[7] = 301/1024f;
+		sphereVertices[10] = 65/1024f; sphereVertices[11] = 301/1024f;
+		sphereVertices[14] = 65/1024f; sphereVertices[15] = 323/1024f;
+	}
+	float[] lyzerVertices = new float[24]; {
+		lyzerVertices[2] = 238/1024f; lyzerVertices[3] = 148/1024f;
+		lyzerVertices[6] = 217/1024f; lyzerVertices[7] = 114/1024f;
+		lyzerVertices[10] = 236/1024f; lyzerVertices[11] = 24/1024f;
+		lyzerVertices[14] = 284/1024f; lyzerVertices[15] = 24/1024f;
+		lyzerVertices[18] = 308/1024f; lyzerVertices[19] = 112/1024f;
+		lyzerVertices[22] = 288/1024f; lyzerVertices[23] = 148/1024f;
+	}
+	float[] firstSegmentVertices = new float[16]; {
+		firstSegmentVertices[2] = 127/1024f; firstSegmentVertices[3] = 980/1024f;
+		firstSegmentVertices[6] = 99/1024f; firstSegmentVertices[7] = 896/1024f;
+		firstSegmentVertices[10] = 484/1024f; firstSegmentVertices[11] = 869/1024f;
+		firstSegmentVertices[14] = 489/1024f; firstSegmentVertices[15] = 902/1024f;
+	}
+	float[] secondSegmentVertices = new float[16]; {
+		secondSegmentVertices[2] = 499/1024f; secondSegmentVertices[3] = 900/1024f;
+		secondSegmentVertices[6] = 501/1024f; secondSegmentVertices[7] = 850/1024f;
+		secondSegmentVertices[10] = 830/1024f; secondSegmentVertices[11] = 892/1024f;
+		secondSegmentVertices[14] = 829/1024f; secondSegmentVertices[15] = 925/1024f;
+	}
+	float[] bladeVertices = new float[16]; {
+		bladeVertices[2] = 848/1024f; bladeVertices[3] = 992/1024f;
+		bladeVertices[6] = 848/1024f; bladeVertices[7] = 844/1024f;
+		bladeVertices[10] = 998/1024f; bladeVertices[11] = 844/1024f;
+		bladeVertices[14] = 998/1024f; bladeVertices[15] = 992/1024f;
+	}
+	public void render(RenderCommand command) {screen.render(command);}
+	public BeginBatch newBeginBatch() {return screen.newBeginBatch();}
+	public DrawSprite newDrawSprite() {return screen.newDrawSprite();}
+	public DrawModel newDrawModel() {return screen.newDrawModel();}
+	public EndBatch newEndBatch() {return screen.newEndBatch();}
+	public ChangeBlend newChangeBlend() {return screen.newChangeBlend();}
+	public ChangeColor newChangeColor() {return screen.newChangeColor();}
+	public ChangeCamera newChangeCamera() {return screen.newChangeCamera();}
+	public Clear newClear() {return screen.newClear();}
+	public Enable newEnable() {return screen.newEnable();}
+	public Disable newDisable() {return screen.newDisable();}
+	public BindTexture newBindTexture() {return screen.newBindTexture();}
+	public LungLevelRenderer(GLScreen screen, GLGraphics graphics, SpriteBatcher batcher,
+			LungLevel level) {
+		this.screen = screen;
+		glGraphics = graphics;
+		camera = new Camera2D(graphics, WIDTH, HEIGHT);
+		camera.zoom = 1;
+		lungLevel = level;
+		platformModel = new Vertices(glGraphics, 4, 0, false, true);
+		antennaModel = new Vertices(glGraphics, 7, 0, false, true);
+		lyzerModel = new Vertices(glGraphics, 6, 0, false, true);
+	}
+	public void render() {
+		render(newChangeCamera().setCamera(camera));
+		/**GL10 gl = glGraphics.getGL();
+		camera.setViewportAndMatrices();**/
+		renderBackground();
+		render(newBeginBatch().set(Assets.modelAtlas, Assets.tintBatcher));
+		render(newDrawSprite().setBatcher(Assets.tintBatcher).setSpriteUpright(
+				lungLevel.platform.x(), HEIGHT-lungLevel.platform.y(), 2.25, 2.25, Assets.platform));
+		render(newEndBatch().setBatcher(Assets.tintBatcher));
+		/**Assets.tintBatcher.beginBatch(Assets.modelAtlas);
+		Assets.tintBatcher.drawSprite(lungLevel.platform.x(), HEIGHT-lungLevel.platform.y(),
+				2.25, 2.25, Assets.platform);
+		Assets.tintBatcher.endBatch();**/
+		renderScaffolds();
+		renderIonCatchers();
+		renderLipolyzers();
+		renderDrexlerSaws();
+		if (lungLevel.lipolaseProjectiles.size()
+				+lungLevel.ions.size()+lungLevel.ionCatchers.size()>0) {
+			render(newBeginBatch().set(Assets.modelAtlas, Assets.tintBatcher));
+			//Assets.tintBatcher.beginBatch(Assets.modelAtlas);
+			renderIons();
+			renderSparks();
+			renderLipolase();
+			render(newEndBatch().setBatcher(Assets.tintBatcher));
+			//Assets.tintBatcher.endBatch();
+		}
+		renderThrobbers();
+		render(newDisable().setCapacity(GL10.GL_BLEND));
+		//gl.glDisable(GL10.GL_BLEND);
+	}
+	public void renderBackground() {
+		render(newBeginBatch().set(Assets.background, Assets.tintBatcher));
+		render(newDrawSprite().setBatcher(Assets.tintBatcher).setSpriteUpright(
+				camera.position.x, camera.position.y, 15, 10, Assets.lungLevelBackground));
+		render(newEndBatch().setBatcher(Assets.tintBatcher));
+		render(newEnable().setCapacity(GL10.GL_BLEND));
+		render(newChangeBlend().setFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA));
+		render(newBeginBatch().set(Assets.lungLevel, Assets.tintBatcher));
+		render(newDrawSprite().setBatcher(Assets.tintBatcher).setSpriteUpright(
+				camera.position.x, 1.3343, 15, 3.4, Assets.healthyLungTissue));
+		render(newEndBatch().setBatcher(Assets.tintBatcher));
+		render(newChangeBlend().setFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA));
+		render(newBeginBatch().set(Assets.lungLevel, Assets.tintBatcher));
+		render(newChangeColor().setColor(1, 1, 1, .75f));
+		render(newDrawSprite().setBatcher(Assets.tintBatcher).setSpriteUpright(
+				camera.position.x, 1.3343, 15, 3.4, Assets.tissueFilm));
+		render(newEndBatch().setBatcher(Assets.tintBatcher));
+		render(newChangeColor().setColor(1, 1, 1, 1));
+		render(newChangeBlend().setFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA));
+		/**GL10 gl = glGraphics.getGL();
+		Assets.tintBatcher.beginBatch(Assets.background);
+		Assets.tintBatcher.drawSprite(camera.position.x, camera.position.y, 15, 10,
+				Assets.lungLevelBackground);
+		Assets.tintBatcher.endBatch();
+		gl.glEnable(GL10.GL_BLEND);
+		gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+		Assets.tintBatcher.beginBatch(Assets.lungLevel);
+		Assets.tintBatcher.drawSprite(camera.position.x, 1.3343, 15, 3.4, Assets.healthyLungTissue);
+		Assets.tintBatcher.endBatch();
+		gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+		Assets.tintBatcher.beginBatch(Assets.lungLevel);
+		gl.glColor4f(1, 1, 1, .75f);
+		Assets.tintBatcher.drawSprite(camera.position.x, 1.3343, 15, 3.4, Assets.tissueFilm);
+		Assets.tintBatcher.endBatch();
+		gl.glColor4f(1, 1, 1, 1);
+		gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);**/
+	}
+	private void renderScaffolds() {
+		render(newBindTexture().setTexture(Assets.modelAtlas));
+		/**GL10 gl = glGraphics.getGL();
+		Assets.modelAtlas.bind();**/
+		int len = lungLevel.scaffolds.size();
+		for (int i=0; i<len; i++) {
+			Scaffold scaffold = lungLevel.scaffolds.get(i);
+			if (lungLevel.template==scaffold && lungLevel.templateAttachable)
+				render(newChangeColor().setColor(1, 1, 1, .5f)); //gl.glColor4f(1,1,1,.5f);
+			else if (lungLevel.template==scaffold)
+				render(newChangeColor().setColor(1,0,0,.5f)); //gl.glColor4f(1,0,0,.5f);
+			render(newDrawModel().setModel(platformModel, scaffoldBaseVertices, scaffold.base, HEIGHT));
+			render(newDrawModel().setModel(platformModel, scaffoldExtensionVertices,
+					scaffold.extension, HEIGHT));
+			render(newDrawModel().setModel(platformModel, scaffoldSliderVertices,
+					scaffold.slider, HEIGHT));
+			/**platformModel.drawModel(scaffoldBaseVertices, scaffold.base, HEIGHT);
+			platformModel.drawModel(scaffoldExtensionVertices, scaffold.extension, HEIGHT);
+			platformModel.drawModel(scaffoldSliderVertices, scaffold.slider, HEIGHT);**/
+			if (lungLevel.template==scaffold)
+				render(newChangeColor().setColor(1, 1, 1, 1)); //gl.glColor4f(1,1,1,1);
+		}
+	}
+	private void renderIonCatchers() {
+		render(newBindTexture().setTexture(Assets.modelAtlas));
+		/**GL10 gl = glGraphics.getGL();
+		Assets.modelAtlas.bind();**/
+		int len = lungLevel.ionCatchers.size();
+		for (int i=0; i<len; i++) {
+			IonCatcher ionCatcher = lungLevel.ionCatchers.get(i);
+			if (lungLevel.template==ionCatcher && lungLevel.templateAttachable)
+				render(newChangeColor().setColor(1, 1, 1, .5f)); //gl.glColor4f(1,1,1,.5f);
+			else if (lungLevel.template==ionCatcher)
+				render(newChangeColor().setColor(1,0,0,.5f)); //gl.glColor4f(1,0,0,.5f);
+			render(newDrawModel().setModel(antennaModel, antennaVertices, ionCatcher.antenna, HEIGHT));
+			render(newDrawModel().setModel(platformModel, sphereVertices, ionCatcher.sphere, HEIGHT));
+			/**antennaModel.drawModel(antennaVertices, ionCatcher.antenna, HEIGHT);
+			platformModel.drawModel(sphereVertices, ionCatcher.sphere, HEIGHT);**/
+			if (lungLevel.template==ionCatcher)
+				render(newChangeColor().setColor(1, 1, 1, 1)); //gl.glColor4f(1,1,1,1);
+		}
+	}
+	private void renderLipolyzers() {
+		render(newBindTexture().setTexture(Assets.modelAtlas));
+		/**GL10 gl = glGraphics.getGL();
+		Assets.modelAtlas.bind();**/
+		int len = lungLevel.lipolyzers.size();
+		for (int i=0; i<len; i++) {
+			Lipolyzer lipolyzer = lungLevel.lipolyzers.get(i);
+			if (lungLevel.template==lipolyzer && lungLevel.templateAttachable)
+				render(newChangeColor().setColor(1, 1, 1, .5f)); //gl.glColor4f(1,1,1,.5f);
+			else if (lungLevel.template==lipolyzer)
+				render(newChangeColor().setColor(1,0,0,.5f)); //gl.glColor4f(1,0,0,.5f);
+			render(newDrawModel().setModel(lyzerModel, lyzerVertices, lipolyzer.body, HEIGHT));
+			//lyzerModel.drawModel(lyzerVertices, lipolyzer.body, HEIGHT);
+			if (lungLevel.template==lipolyzer) 
+				render(newChangeColor().setColor(1, 1, 1, 1)); //gl.glColor4f(1,1,1,1);
+		}
+	}
+	private void renderDrexlerSaws() {
+		//GL10 gl = glGraphics.getGL();
+		int len = lungLevel.drexlerSaws.size();
+		for (int i=0; i<len; i++) {
+			DrexlerSaw drexlerSaw = lungLevel.drexlerSaws.get(i);
+			render(newBindTexture().setTexture(Assets.modelAtlas));
+			//Assets.modelAtlas.bind();
+			if (lungLevel.template==drexlerSaw && lungLevel.templateAttachable)
+				render(newChangeColor().setColor(1, 1, 1, .5f)); //gl.glColor4f(1,1,1,.5f);
+			else if (lungLevel.template==drexlerSaw)
+				render(newChangeColor().setColor(1,0,0,.5f)); //gl.glColor4f(1,0,0,.5f);
+			render(newDrawModel().setModel(platformModel, firstSegmentVertices,
+					drexlerSaw.firstSegment, HEIGHT));
+			render(newDrawModel().setModel(platformModel, secondSegmentVertices,
+					drexlerSaw.secondSegment, HEIGHT));
+			render(newDrawModel().setModel(platformModel, bladeVertices, drexlerSaw.blade, HEIGHT));
+			/**platformModel.drawModel(firstSegmentVertices, drexlerSaw.firstSegment, HEIGHT);
+			platformModel.drawModel(secondSegmentVertices, drexlerSaw.secondSegment, HEIGHT);
+			platformModel.drawModel(bladeVertices, drexlerSaw.blade, HEIGHT);**/
+			if (lungLevel.template==drexlerSaw)
+				render(newChangeColor().setColor(1, 1, 1, 1)); //gl.glColor4f(1,1,1,1);
+			render(newBindTexture().setTexture(Assets.throbberAtlas));
+			render(newChangeBlend().setFunction(GL10.GL_ONE, GL10.GL_ONE_MINUS_SRC_ALPHA));
+			render(newBeginBatch().set(Assets.throbberAtlas, Assets.tintBatcher));
+			/**Assets.throbberAtlas.bind();
+			gl.glBlendFunc(GL10.GL_ONE, GL10.GL_ONE_MINUS_SRC_ALPHA);
+			Assets.tintBatcher.beginBatch(Assets.throbberAtlas);**/
+			boolean isEmpty = true;
+			int len2 = drexlerSaw.vapor.particles.size();
+			for (int j=0; j<len2; j++) {
+				Particle particle = drexlerSaw.vapor.particles.get(j);
+				isEmpty = false;
+				float alpha = (float) (particle.alpha);
+				render(newDrawSprite().setSpriteUpright(particle, Assets.flake1,
+						alpha, alpha, alpha, alpha));
+				//Assets.tintBatcher.drawSprite(particle, Assets.flake1, alpha, alpha, alpha, alpha);
+			}
+			if (!isEmpty)
+				render(newEndBatch().setBatcher(Assets.tintBatcher)); //Assets.tintBatcher.endBatch();
+			render(newChangeBlend().setFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA));
+			//gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+		}
+	}
+	private void renderIons() {
+		int len = lungLevel.ions.size();
+		for (int i=0; i<len; i++)
+			Assets.tintBatcher.drawSprite(lungLevel.ions.get(i), Assets.slingIon);
+	}
+	private void renderSparks() {
+		int len = lungLevel.ionCatchers.size();
+		for (int i=0; i<len; i++) {
+			IonCatcher ionCatcher = lungLevel.ionCatchers.get(i);
+			if (ionCatcher.sparking && ionCatcher.enabled) {
+				TextureRegion keyFrame = Assets.sparks.getKeyFrame(ionCatcher.sparksTime,
+						Animation.ANIMATION_LOOPING);
+				Assets.tintBatcher.drawSprite(ionCatcher.spherePoint.x(),
+						HEIGHT-ionCatcher.spherePoint.y(), 1.5, .5,
+						ionCatcher.sparkAngle, keyFrame);
+			}
+		}
+		Assets.tintBatcher.drawSprite(100, 100, 1.5, .5, Assets.sparks.getKeyFrame(0,
+				Animation.ANIMATION_LOOPING));
+	}
+	private void renderLipolase() {
+		int len = lungLevel.lipolaseProjectiles.size();
+		for (int i=0; i<len; i++)
+			Assets.tintBatcher.drawSprite(lungLevel.lipolaseProjectiles.get(i), Assets.lipolase);
+	}
+	private void renderThrobbers() {
+		GL10 gl = glGraphics.getGL();
+		if (lungLevel.throbbers.size()>0) {
+			int len = lungLevel.throbbers.size();
+			for (int i=0; i<len; i++) {
+				Throbber throbber = lungLevel.throbbers.get(i);
+				if (throbber.vapor!=null) {
+					gl.glBlendFunc(GL10.GL_ONE, GL10.GL_ONE_MINUS_SRC_ALPHA);
+					Assets.tintBatcher.beginBatch(Assets.throbberAtlas);
+					boolean isEmpty = true;
+					int len2 = throbber.vapor.particles.size();
+					for (int j=0; j<len2; j++) {
+						Particle particle = throbber.vapor.particles.get(j);
+						isEmpty = false;
+						float alpha = (float) (particle.alpha);
+						Assets.tintBatcher.drawSpriteUpright(particle, Assets.bigVapor, alpha,
+								alpha, alpha, alpha);
+					}
+					if (!isEmpty) Assets.tintBatcher.endBatch();
+					gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+				}
+				
+				if (!throbber.disintegrating) {
+					Assets.tintBatcher.beginBatch(Assets.throbberAtlas);
+					TextureRegion keyFrame = Assets.throbber;
+					if (throbber.throbbing)
+						keyFrame = Assets.throbbing.getKeyFrame(throbber.changeTime,
+								Animation.ANIMATION_LOOPING);
+					if (throbber.infecting)
+						keyFrame = Assets.infectingThrobber;
+					Assets.tintBatcher.drawSprite(throbber, keyFrame);
+					Assets.tintBatcher.endBatch();
+				}
+				else {
+					Assets.tintBatcher.beginBatch(Assets.disintegration);
+					TextureRegion keyFrame = Assets.disintegrating.getKeyFrame(
+							throbber.changeTime, Animation.ANIMATION_NONLOOPING);
+					Assets.tintBatcher.drawSprite(throbber, keyFrame);
+					Assets.tintBatcher.endBatch();
+				}
+			}
+		}
+	}
+}

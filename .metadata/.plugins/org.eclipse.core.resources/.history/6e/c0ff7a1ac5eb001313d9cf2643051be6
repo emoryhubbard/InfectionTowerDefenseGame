@@ -1,0 +1,37 @@
+package com.gdsoftworks.lilly;
+
+import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+public class FeedWindow extends JFrame {
+	public static int WIDTH = 500;
+	public static int HEIGHT = 400;
+	public FeedWindow() {
+		setSize(WIDTH, HEIGHT);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setTitle("LillyMonitor");
+	}
+	public class Feed extends JPanel {
+		Image frame = null;
+		public Feed() {
+			setLayout(new FlowLayout());
+			setVisible(true);
+			setAlwaysOnTop(true);
+		}
+		public void setFrame(Image frame) {this.frame=frame; repaint();}
+		public void paintComponent(Graphics g) {
+			super.paintComponent(g);
+			Graphics2D g2 = (Graphics2D) g;
+			try {
+				if (frame!=null) g2.drawImage(frame, 0, 0, 500, 400, 0, 0, frame.getWidth(null),
+						frame.getHeight(null), null);
+			} catch (Exception e) {System.out.println(e.getMessage());}
+		}
+		
+	}
+}

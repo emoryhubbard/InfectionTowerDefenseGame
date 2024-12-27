@@ -1,0 +1,24 @@
+1378179227532	Rename field 'joints'
+1378179262382	Rename local variable 'joint'
+1378180434983	Move compilation unit
+1378270042769	Rename local variable 'blueThing'
+1378323955342	Move compilation unit
+1378323985575	Move compilation unit
+1378326699472	Rename method 'move'
+1378326718488	Rename method 'rotateJoint'
+1378326787237	Rename method 'rotateJoint'
+1378326837391	Rename method 'deepAddX'
+1378326848140	Rename method 'deepAddY'
+1378358465060	Rename local variable 'vertex'
+1378408402379	Move compilation unit
+1378408681648	Rename type 'IO'
+1378413134140	Rename field 'ownedPolygons'
+1378413156214	Rename method 'ownedPolygons'
+1378420494574	Rename field 'ownedPolygons'
+1378424510842	Rename method 'ownedPolygons'
+1378425521998	Rename method 'bounce'
+1378497586003	Move compilation unit
+1378497605503	Move compilation unit
+1378497622663	Rename package 'gdsoftworks.graphics'
+1378588856626	Change method 'deepGrow'
+1378589266782	Change method 'grow'

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename package &apos;com.gdsoftworks.lilly&apos; to &apos;com.machinemind.meerkat&apos;&#x0D;&#x0A;- Original project: &apos;LillyMonitor&apos;&#x0D;&#x0A;- Original element: &apos;LillyMonitor/com.gdsoftworks.lilly&apos;&#x0D;&#x0A;- Renamed element: &apos;LillyMonitor/com.machinemind.meerkat&apos;&#x0D;&#x0A;- Update references to refactored element&#x0D;&#x0A;- Update textual occurrences in comments and strings" description="Rename package &apos;com.gdsoftworks.lilly&apos;" flags="589830" hierarchical="false" id="org.eclipse.jdt.ui.rename.package" input="/&lt;com.gdsoftworks.lilly" name="com.machinemind.meerkat" qualified="false" references="true" stamp="1401871753847" textual="false" version="1.0"/>
+</session>

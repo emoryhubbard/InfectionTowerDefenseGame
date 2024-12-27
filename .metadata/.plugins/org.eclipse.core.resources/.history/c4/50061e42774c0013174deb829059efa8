@@ -1,0 +1,439 @@
+package com.gdsoftworks.infectionbeta;
+
+import gdsoftworks.geometry.Collision;
+import gdsoftworks.geometry.FastRectangle;
+import gdsoftworks.geometry.Polygon;
+import gdsoftworks.geometry.ReadOnlyPolygon;
+import gdsoftworks.geometry.Vector;
+import gdsoftworks.kinematics.Model;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
+
+import com.gdsoftworks.ai.FitnessFunction;
+
+public class LungLevel {
+	interface Player {
+		void zap(); void shoot(); void stick(); void cut();
+	}
+	static final int NONE = 0;
+	static final int C = 1;
+	static final int CC = 2;
+	static final int HEIGHT = 10;
+	boolean templateAttachable = false;
+	int templateZ = 1; int spin = NONE; double speed = Math.PI/2;
+	int nanograms = 1000; double elapsedTime = 0; double ionSpawnFrequency = 4;
+	Random random = new Random();
+	Polygon finger = new Polygon(0, 0, .5, 24);
+	public Gadget template = null;
+	public Model overlappingModel = null;
+	public Platform platform = new Platform();
+	public List<Button> buttons = new LinkedList<Button>();
+	public List<Scaffold> scaffolds = new LinkedList<Scaffold>();
+	public List<IonCatcher> ionCatchers = new LinkedList<IonCatcher>();
+	public List<Lipolyzer> lipolyzers = new LinkedList<Lipolyzer>();
+	List<DrexlerSaw> drexlerSaws = new LinkedList<DrexlerSaw>();
+	List<Ion> ions = new LinkedList<Ion>();
+	List<Lipolase> lipolaseProjectiles = new LinkedList<Lipolase>();
+	List<Throbber> throbbers = new LinkedList<Throbber>();
+	List<ThrobberVapor> throbberVapors = new LinkedList<ThrobberVapor>();
+	Player player;
+	public LungLevel(Player player) {
+		this.player = player;
+		/**for (int i=0; i<1; i++) {
+			throbberVapors.add(new ThrobberVapor(platform.x(),
+					10-platform.y(), 2, .1, .006));
+		}**/
+	}
+	public void create(String name, double x, double y) {
+		y-=10;
+		if (name.equalsIgnoreCase("scaffold")) {
+			Scaffold scaffold = new Scaffold(x, y);
+			scaffold.setReferenceZ(templateZ++);
+			scaffolds.add(scaffold);
+			template = scaffold;
+		}
+		else if (name.equalsIgnoreCase("ionCatcher")) {
+			IonCatcher ionCatcher = new IonCatcher(x, y, player);
+			ionCatcher.setReferenceZ(templateZ++);
+			ionCatchers.add(ionCatcher);
+			template = ionCatcher;
+		}
+		else if (name.equalsIgnoreCase("lipolyzer")) {
+			Lipolyzer lipolyzer = new Lipolyzer(x, y, new Lipolyzer.Spawner(){
+				public void spawn(Lipolase lipolase) {lipolaseProjectiles.add(lipolase);}
+			}, player);
+			lipolyzer.setReferenceZ(templateZ++);
+			lipolyzers.add(lipolyzer);
+			template = lipolyzer;
+		}
+		else if (name.equalsIgnoreCase("drexlerSaw")) {
+			final DrexlerSaw drexlerSaw = new DrexlerSaw(x, y);
+			drexlerSaw.setFitnessFunction(new FitnessFunction(){
+				DrexlerSaw saw = drexlerSaw;
+				Vector positions = new Vector();
+				Throbber closest = null;
+				public double evaluate() {
+					double fitness = 0; double leastDistance = Double.MAX_VALUE;
+					for (Throbber throbber: throbbers) {
+						if (throbber.changeTime>.5 || throbber.hit) continue;
+						positions.set(throbber.position);
+						double distance = positions.distanceSquared(
+								saw.x(), 10-saw.y());
+						if (distance<leastDistance) {
+							closest = throbber; leastDistance = distance;
+						}
+					}
+					if (closest!=null)
+						leastDistance = positions.set(closest.position).distanceSquared(
+								saw.bladeJoint.x(), 10-saw.bladeJoint.y());
+					if (leastDistance>15*15) fitness = 0;
+					else if (leastDistance<.25) fitness = 1;
+					else fitness = 1-(leastDistance/(15*15));
+					return fitness;
+				}
+			});
+			drexlerSaw.setReferenceZ(templateZ++);
+			drexlerSaws.add(drexlerSaw);
+			template = drexlerSaw;
+			throbberVapors.add(drexlerSaw.vapor);
+		}
+	}
+	public void move(double x, double y) {
+		template.setX(x); template.setY(10-y);
+	}
+	private void updateAttachable() {
+		if (template!=null) {
+			templateAttachable = false;
+			for (ReadOnlyPolygon gon: template.attachingPolygons) {
+				overlappingModel = platform.overlappingModel(gon);
+				/**for (Throbber throbber: throbbers) {
+					if (template.isOverlapping(rectToPolygon(throbber.logicBounds)))
+						return;
+				}**/
+				if (overlappingModel!=null && (overlappingModel instanceof Scaffold
+						|| overlappingModel instanceof Platform
+						|| overlappingModel instanceof Scaffold.Extensor)
+						&& nanograms>=template.cost) {
+					templateAttachable = true; break;
+				}
+			}
+		}
+	}
+	public void attach() {
+		if (template!=null && templateAttachable) {
+			overlappingModel.add(template);
+			buttons.addAll(template.buttons);
+			nanograms-=template.cost;
+			template.enabled = true;
+			if (template instanceof IonCatcher) {
+				double ionSpawnRate = 1/ionSpawnFrequency;
+				ionSpawnRate+=.125;
+				ionSpawnFrequency = 1/ionSpawnRate;
+			}
+			template = null;
+		}
+	}
+	public void destroy() {
+		scaffolds.remove(template);
+		ionCatchers.remove(template);
+		lipolyzers.remove(template);
+		drexlerSaws.remove(template);
+		template = null; overlappingModel = null;
+	}
+	public void press(double x, double y) {
+		finger.addX(x-finger.centerX()); finger.addY((10-y)-finger.centerY());
+		for (Button button: buttons)
+			for (ReadOnlyPolygon gon: button.polygons)
+				if (gon.isOverlapping(finger)) button.press();
+	}
+	public void release(double x, double y) {
+		finger.addX(x-finger.centerX()); finger.addY((10-y)-finger.centerY());
+		for (Button button: buttons)
+			for (ReadOnlyPolygon gon: button.polygons)
+				if (gon.isOverlapping(finger)) button.release();
+	}
+	List<ThrobberVapor> removeVapors = new LinkedList<ThrobberVapor>();
+	public void update(double deltaTime) {
+		updateAttachable();
+		updateIons(deltaTime);
+		updateLipolaseProjectiles(deltaTime);
+		updateThrobbers(deltaTime);
+		for (ThrobberVapor vapor: throbberVapors) {
+			vapor.update(deltaTime);
+			if (vapor.inactiveTime>vapor.maxParticleAge) removeVapors.add(vapor);
+		}
+		throbberVapors.removeAll(removeVapors); removeVapors.clear();
+		updateScaffolds(deltaTime);
+		updateDrexlerSaws(deltaTime);
+		for (IonCatcher ionCatcher: ionCatchers)
+			if (ionCatcher.enabled) ionCatcher.update(deltaTime);
+		for (Lipolyzer lipolyzer: lipolyzers)
+			if (lipolyzer.enabled) lipolyzer.update(deltaTime);
+		if (template!=null) {
+			switch (spin) {
+			case C: template.rotate(-speed*deltaTime); break;
+			case CC: template.rotate(speed*deltaTime); break;
+			}
+		}
+	}
+	Vector spawnIonPosition = new Vector(); Vector spawnIonVelocity = new Vector();
+	List<Ion> removeIons = new LinkedList<Ion>();
+	Vector field = new Vector(); Vector spherePosition = new Vector();
+	Vector previousField = new Vector(); Model tempModel;
+	private void updateIons(double deltaTime) {
+		for (Ion ion: ions) {
+			ion.update(deltaTime);
+			for (IonCatcher ionCatcher: ionCatchers) {
+				if (ionCatcher.enabled) {
+					spherePosition.set(ionCatcher.spherePoint.x(),
+							HEIGHT-ionCatcher.spherePoint.y());
+					double intensity = 1 / spherePosition.distanceSquared(ion.position);
+					field.set(spherePosition); field.add(-ion.position.x, -ion.position.y);
+					if (ionCatcher.closest==null)
+						ionCatcher.closest = ion;
+					else {
+						previousField.set(spherePosition).add(-ionCatcher.closest.position.x,
+								-ionCatcher.closest.position.y);
+						if (field.distance()<previousField.distance())
+							ionCatcher.closest = ion;
+					}
+					field.normalize(); field.scale(intensity*ionCatcher.field);
+					ion.velocity.add(field.x*deltaTime, field.y*deltaTime);
+				}
+			}
+			tempModel = platform.overlappingModel(rectToPolygon(ion.logicBounds));
+			if (tempModel==platform || tempModel instanceof IonCatcher) {
+				removeIons.add(ion); ion.alive = false;
+				nanograms+=ion.value;
+			}
+			if (ion.position.x>18 || ion.position.x<-3 || ion.position.y>15
+					|| ion.position.y<-5) {
+				removeIons.add(ion); ion.alive = false;
+			}
+		}
+		ions.removeAll(removeIons); removeIons.clear();
+		if ((elapsedTime+=deltaTime)>ionSpawnFrequency) {
+			elapsedTime = 0;
+			boolean leftSide = random.nextDouble()>.5;
+			spawnIonPosition.x = leftSide ? -2: 17;
+			spawnIonPosition.y = random.nextDouble()*25-5;
+			spawnIonVelocity.x = leftSide ? 1: -1;
+			spawnIonVelocity.x*= random.nextDouble()*2 + (leftSide ? .25: -.25);
+			spawnIonVelocity.y = random.nextDouble()*2*(random.nextDouble()>.5?-1:1);
+			double size, value;
+			int type = random.nextInt() % 11;
+			if (type==0) {size=1.5; value=40;}
+			else if (type>0 && type<3) {size=1; value=20;}
+			else {size=.5; value=5;}
+			ions.add(new Ion(spawnIonPosition.x, spawnIonPosition.y, size,
+					spawnIonVelocity, value));
+		}
+		
+	}
+	private static ReadOnlyPolygon rectToPolygon(FastRectangle rect) {
+		/**return new Polygon(rect.lowerLeft.x+rect.width/2,
+		 10-(rect.lowerLeft.y+rect.height/2), rect.width/2, 24);**/
+		return new Polygon(new double[]{rect.lowerLeft.x, rect.lowerLeft.x,
+				rect.lowerLeft.x+rect.width, rect.lowerLeft.x+rect.width},
+				new double[] {10-rect.lowerLeft.y, 10-(rect.lowerLeft.y+rect.height),
+				10-(rect.lowerLeft.y+rect.height), 10-rect.lowerLeft.y});
+	}
+	List<Lipolase> removeLipolase = new LinkedList<Lipolase>();
+	private void updateLipolaseProjectiles(double deltaTime) {
+		for (Lipolase lipolase: lipolaseProjectiles) {
+			if (!lipolase.hit) {
+				lipolase.update(deltaTime);
+				for (Lipolase otherLipolase: lipolaseProjectiles) {
+					if (!otherLipolase.hit && otherLipolase!=lipolase
+							&& Collision.areOverlapping(otherLipolase.logicBounds,
+							lipolase.logicBounds)) {
+						player.stick();
+						newVelocity.set(0, 0);
+						double mass = lipolase.mass+otherLipolase.mass;
+						double forceX = lipolase.mass*lipolase.velocity.x;
+						double forceY = lipolase.mass*lipolase.velocity.y;
+						newVelocity.add(forceX/mass, forceY/mass);
+						forceX = otherLipolase.mass*otherLipolase.velocity.x;
+						forceY = otherLipolase.mass*otherLipolase.velocity.y;
+						newVelocity.add(forceX/mass, forceY/mass);
+						otherLipolase.mass = mass;
+						otherLipolase.lipolaseProjectiles.add(lipolase);
+						otherLipolase.velocity.set(newVelocity);
+						lipolase.hit = true;
+						break;
+					}
+				}
+			}
+			if (lipolase.position.x>18 || lipolase.position.x<-3 || lipolase.position.y>15
+					|| lipolase.position.y<-5) {
+				removeLipolase.add(lipolase); lipolase.alive = false;
+			}
+		}
+		lipolaseProjectiles.removeAll(removeLipolase); removeLipolase.clear();
+	}
+	/**static final int ATTACK = 0;
+	static final int PAUSE = 1;
+	int state = PAUSE;
+	double throbberBatch = 1/1.3;
+	double throbberBatchElapsed = 0;
+	double throbberIntermission = 15;**/
+	double throbberSpawnElapsed = 0; double throbberSpawnFrequency = 5;
+	double throbberSpeed = .1;
+	double throbberBoost1 = .15;
+	double throbberBoost2 = .7;
+	double fastChance = 1/4d;
+	double throbberArc = Math.PI/4;
+	double minSize = .5; double maxSize = 2;
+	/**double maxVelocity = .3; double minVelocity = .1;
+	double minSize = .5; double maxSize = 2;**/
+	Vector throbberVelocity = new Vector(); Vector newVelocity = new Vector();
+	List<Throbber> removeThrobbers = new LinkedList<Throbber>();
+	List<Throbber> activeThrobbers = new LinkedList<Throbber>();
+	FastRectangle tissueBounds = new FastRectangle(0, -2, 15, 2+1/3d);
+	private void updateThrobbers(double deltaTime) {
+		for (Throbber throbber: throbbers) {
+			if (!throbber.hit && !throbber.disintegrating) {
+				throbber.update(deltaTime);
+				if (!throbber.infecting
+						&& Collision.areOverlapping(throbber.logicBounds, tissueBounds)
+						&& !(platform.overlappingModel(rectToPolygon(throbber.bounds))
+						==platform)) {
+					throbber.velocity.set(0, 0);
+					throbber.infecting = true;
+					throbber.spin = 0;
+					activeThrobbers.remove(throbber);
+					throbber.extinguish();
+					continue;
+				}
+				for (Lipolase lipolase: lipolaseProjectiles) {
+					if (!lipolase.hit
+							&& Collision.areOverlapping(lipolase.logicBounds,
+							throbber.logicBounds)) {
+						player.stick();
+						newVelocity.set(0, 0);
+						double mass = throbber.mass+lipolase.mass;
+						double forceX = throbber.mass*throbber.velocity.x;
+						double forceY = throbber.mass*throbber.velocity.y;
+						newVelocity.add(forceX/mass, forceY/mass);
+						forceX = lipolase.mass*lipolase.velocity.x;
+						forceY = lipolase.mass*lipolase.velocity.y;
+						newVelocity.add(forceX/mass, forceY/mass);
+						lipolase.mass = mass;
+						lipolase.throbbers.add(throbber);
+						lipolase.velocity.set(newVelocity);
+						throbber.hit = true;
+						activeThrobbers.remove(throbber);
+						throbber.extinguish();
+						break;
+					}
+				}
+			}
+			if (throbber.disintegrating) throbber.update(deltaTime);
+			if (throbber.disintegrating && throbber.changeTime>.45
+					&& throbber.vapor.inactiveTime>throbber.vapor.maxParticleAge) {
+				removeThrobbers.add(throbber); throbber.alive = false;
+			}
+			if (throbber.position.x>16 || throbber.position.x<-1 || throbber.position.y>12
+					|| throbber.position.y<-1) {
+				throbber.velocity.set(0, 0);
+				throbber.disintegrating = true;
+				throbber.changeTime = 0;
+				throbber.extinguish();
+			}
+		}
+		throbbers.removeAll(removeThrobbers);
+		for (Throbber throbber: removeThrobbers)
+			throbber.extinguish();
+		activeThrobbers.removeAll(removeThrobbers); removeThrobbers.clear();
+		throbberSpawnElapsed+=deltaTime;
+		if (throbberSpawnElapsed>throbberSpawnFrequency) {
+			throbberVelocity.set(0,
+				-throbberSpeed-throbberBoost1*random.nextDouble()
+				-((random.nextDouble()<fastChance)?throbberBoost2:0));
+			throbberVelocity.rotate(-throbberArc/2+throbberArc*random.nextDouble());
+			/**throbberVelocity.set(random.nextDouble()*.2-.1,
+					-minVelocity-random.nextDouble()*(maxVelocity-minVelocity));**/
+			Throbber newThrobber = new Throbber(random.nextDouble()*15, 12, throbberVelocity,
+					random.nextDouble()*(maxSize-minSize)+minSize);
+			throbbers.add(newThrobber);
+			throbberVapors.add(newThrobber.vapor);
+			throbberSpawnElapsed = 0;
+		}
+		/**switch (state) {
+		case PAUSE:
+			throbberBatchElapsed+=deltaTime;
+			if (throbberBatchElapsed>throbberIntermission) {
+				throbberBatch*=1.3;
+				throbberBatchElapsed = 0;
+				maxVelocity+=.05;
+				state = ATTACK;
+				for (int i=0; i<(int)throbberBatch; i++) {
+					throbberVelocity.set(random.nextDouble()*.2-.1,
+							-minVelocity-random.nextDouble()*(maxVelocity-minVelocity));
+					Throbber newThrobber = new Throbber(random.nextDouble()*10, 12,
+							throbberVelocity, random.nextDouble()*(maxSize-minSize)+minSize);
+					throbbers.add(newThrobber); activeThrobbers.add(newThrobber);
+				}
+			}
+			break;
+		case ATTACK:
+			if (activeThrobbers.size()==0) state=PAUSE;
+		}**/
+	}
+	com.gdsoftworks.kludgecode.Vector reflectVector =
+			new com.gdsoftworks.kludgecode.Vector(0, 0);
+	Vector tempVector = new Vector();
+	Polygon tempGon = null; ReadOnlyPolygon throbberGon;
+	private void updateScaffolds(double deltaTime) {
+		for (Scaffold scaffold: scaffolds) {
+			if (scaffold.enabled) {
+				scaffold.update(deltaTime);
+				/**for (Throbber throbber: throbbers) {
+					throbberGon = rectToPolygon(throbber.logicBounds);
+					if (!throbber.bumping
+							&& !((tempGon=scaffold.overlappingPolygon(throbberGon))==null)) {
+						/**tempVector.set(throbber.velocity.x, 10-throbber.velocity.y);
+						reflectVector.speed = tempVector.distance();
+						reflectVector.radians = tempVector.angle();
+						reflectVector.reflect(tempGon.overlappingLine(throbberGon));
+						throbber.velocity.rotate(
+								-reflectVector.radians-throbber.velocity.angle());
+						throbber.bumping = true;
+					}
+				}**/
+			}
+		}
+	}
+	private void updateDrexlerSaws(double deltaTime) {
+		for (DrexlerSaw saw: drexlerSaws) {
+			if (saw.enabled) {
+				saw.update(deltaTime);
+				boolean cutting = false;
+				if (saw.state==DrexlerSaw.SEEKING) {
+					for (Throbber throbber: throbbers) {
+						if (!throbber.hit && !throbber.disintegrating
+								&& Collision.rectContains(throbber.bounds,
+								saw.bladeJoint.x(), 10-saw.bladeJoint.y())) {
+							cutting = true;
+							player.cut();
+							throbber.velocity.set(0, 0);
+							throbber.disintegrating = true;
+							throbber.changeTime = 0;
+							throbber.extinguish();
+						}
+						else if (!throbber.hit && throbber.changeTime<.5
+								&& Collision.rectContains(throbber.bounds,
+								saw.bladeJoint.x(), 10-saw.bladeJoint.y()))
+							cutting = true;
+					}
+				}
+				if (cutting && saw.vapor.frequency>100)
+					saw.vapor.time = 0;
+				if (cutting) saw.vapor.frequency = .0025;
+				else saw.vapor.frequency = Double.MAX_VALUE;
+			}
+		}
+	}
+}

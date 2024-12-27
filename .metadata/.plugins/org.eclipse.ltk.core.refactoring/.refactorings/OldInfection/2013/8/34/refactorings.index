@@ -1,0 +1,19 @@
+1376957162404	Delete element
+1376958448783	Delete element
+1377020053438	Rename package 'com.gdsoftworks.graphics'
+1377020118334	Rename package 'com.gdsoftworks.powerpong'
+1377020151188	Rename package 'com.gdsoftworks.util'
+1377023963445	Rename method 'getFillColor'
+1377039999650	Delete element
+1377107032927	Rename field 'badBalls'
+1377124594884	Rename field 'rotationLimits'
+1377126765174	Rename field 'spine'
+1377210390324	Rename method 'getCenterX'
+1377210407297	Rename method 'getCenterY'
+1377210443676	Rename method 'getX'
+1377210461834	Rename method 'getY'
+1377210488386	Rename method 'getWidth'
+1377210510553	Rename method 'getHeight'
+1377212400580	Rename method 'polygons'
+1377219397274	Rename field 'hitBox'
+1377316693716	Rename type 'Vertex'

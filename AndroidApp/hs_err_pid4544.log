@@ -1,0 +1,111 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  Internal Error (javaClasses.cpp:129), pid=4544, tid=2400
+#  fatal error: Invalid layout of preloaded class
+#
+# JRE version: 7.0_25-b17
+# Java VM: Java HotSpot(TM) 64-Bit Server VM (23.25-b01 mixed mode windows-amd64 compressed oops)
+# Failed to write core dump. Minidumps are not enabled by default on client versions of Windows
+#
+# If you would like to submit a bug report, please visit:
+#   http://bugreport.sun.com/bugreport/crash.jsp
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x000000000265c800):  JavaThread "Unknown thread" [_thread_in_vm, id=2400, stack(0x00000000027d0000,0x00000000028d0000)]
+
+Stack: [0x00000000027d0000,0x00000000028d0000]
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+
+Other Threads:
+
+=>0x000000000265c800 (exited) JavaThread "Unknown thread" [_thread_in_vm, id=2400, stack(0x00000000027d0000,0x00000000028d0000)]
+
+VM state:not at safepoint (not fully initialized)
+
+VM Mutex/Monitor currently owned by a thread: None
+
+GC Heap History (0 events):
+No events
+
+Deoptimization events (0 events):
+No events
+
+Internal exceptions (0 events):
+No events
+
+Events (10 events):
+Event: 0.101 loading class 0x00000000026e3ab0 done
+Event: 0.102 loading class 0x00000000026a2330 done
+Event: 0.102 loading class 0x00000000026a2300
+Event: 0.102 loading class 0x00000000026f1860
+Event: 0.102 loading class 0x00000000026f1860 done
+Event: 0.102 loading class 0x00000000026f18a0
+Event: 0.102 loading class 0x00000000026f18a0 done
+Event: 0.102 loading class 0x0000000008c4d0b0
+Event: 0.102 loading class 0x0000000008c4d0b0 done
+Event: 0.103 loading class 0x00000000026a2300 done
+
+
+Dynamic libraries:
+0x000000013f6b0000 - 0x000000013f6e3000 	C:\Program Files\Eclipse\eclipse\jre\bin\javaw.exe
+0x0000000077950000 - 0x0000000077af9000 	C:\Windows\SYSTEM32\ntdll.dll
+0x0000000072460000 - 0x00000000724ad000 	C:\Program Files\AVAST Software\Avast\snxhk64.dll
+0x0000000077830000 - 0x000000007794f000 	C:\Windows\system32\KERNEL32.dll
+0x000007fefd850000 - 0x000007fefd8bb000 	C:\Windows\system32\KERNELBASE.dll
+0x000007fefde10000 - 0x000007fefdeeb000 	C:\Windows\system32\ADVAPI32.dll
+0x000007fefe020000 - 0x000007fefe0bf000 	C:\Windows\system32\msvcrt.dll
+0x000007feff900000 - 0x000007feff91f000 	C:\Windows\SYSTEM32\sechost.dll
+0x000007fefdef0000 - 0x000007fefe01d000 	C:\Windows\system32\RPCRT4.dll
+0x0000000077730000 - 0x000000007782a000 	C:\Windows\system32\USER32.dll
+0x000007feff730000 - 0x000007feff797000 	C:\Windows\system32\GDI32.dll
+0x000007feff530000 - 0x000007feff53e000 	C:\Windows\system32\LPK.dll
+0x000007feff5c0000 - 0x000007feff689000 	C:\Windows\system32\USP10.dll
+0x000007fefb9c0000 - 0x000007fefbbb4000 	C:\Windows\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_6.0.7601.17514_none_fa396087175ac9ac\COMCTL32.dll
+0x000007fefdb30000 - 0x000007fefdba1000 	C:\Windows\system32\SHLWAPI.dll
+0x000007feff590000 - 0x000007feff5be000 	C:\Windows\system32\IMM32.DLL
+0x000007fefe370000 - 0x000007fefe479000 	C:\Windows\system32\MSCTF.dll
+0x0000000180000000 - 0x0000000180072000 	C:\Windows\system32\guard64.dll
+0x000007fefd510000 - 0x000007fefd519000 	C:\Windows\system32\fltlib.dll
+0x00000000741d0000 - 0x00000000742a1000 	C:\Program Files\Eclipse\eclipse\jre\bin\msvcr100.dll
+0x0000000071110000 - 0x000000007181f000 	C:\Program Files\Eclipse\eclipse\jre\bin\server\jvm.dll
+0x000007fef0a60000 - 0x000007fef0a69000 	C:\Windows\system32\WSOCK32.dll
+0x000007feff540000 - 0x000007feff58d000 	C:\Windows\system32\WS2_32.dll
+0x00000000023b0000 - 0x00000000023b8000 	C:\Windows\system32\NSI.dll
+0x000007fefc2a0000 - 0x000007fefc2db000 	C:\Windows\system32\WINMM.dll
+0x0000000077b10000 - 0x0000000077b17000 	C:\Windows\system32\PSAPI.DLL
+0x0000000074430000 - 0x000000007443f000 	C:\Program Files\Eclipse\eclipse\jre\bin\verify.dll
+0x00000000743b0000 - 0x00000000743d8000 	C:\Program Files\Eclipse\eclipse\jre\bin\java.dll
+0x0000000074410000 - 0x0000000074425000 	C:\Program Files\Eclipse\eclipse\jre\bin\zip.dll
+
+VM Arguments:
+jvm_args: -Dfile.encoding=Cp1252 -Xbootclasspath:C:\JavaStuff\Applications\Desktop\android-sdk\platforms\android-18\android.jar 
+java_command: com.gdsoftworks.androidapp.opengl.SpriteBatcher
+Launcher Type: SUN_STANDARD
+
+Environment Variables:
+PATH=C:/Program Files/Eclipse/eclipse/jre/bin/server;C:/Program Files/Eclipse/eclipse/jre/bin;C:/Program Files/Eclipse/eclipse/jre/lib/amd64;C:\Program Files\Dell\DW WLAN Card;;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\WIDCOMM\Bluetooth Software\;C:\Program Files\WIDCOMM\Bluetooth Software\syswow64;C:\Program Files (x86)\Intel\OpenCL SDK\2.0\bin\x86;C:\Program Files (x86)\Intel\OpenCL SDK\2.0\bin\x64;C:\JavaStuff\AndroidNDK\android-ndk-r9b;C:\Program Files\Java\jdk1.7.0_45\bin;C:\Program Files\Eclipse\eclipse;
+USERNAME=EDH
+OS=Windows_NT
+PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 42 Stepping 7, GenuineIntel
+
+
+
+---------------  S Y S T E M  ---------------
+
+OS: Windows 7 , 64 bit Build 7601 Service Pack 1
+
+CPU:total 4 (2 cores per cpu, 2 threads per core) family 6 model 42 stepping 7, cmov, cx8, fxsr, mmx, sse, sse2, sse3, ssse3, sse4.1, sse4.2, popcnt, avx, ht, tsc, tscinvbit
+
+Memory: 4k page, physical 4100376k(2198452k free), swap 8198888k(5897860k free)
+
+vm_info: Java HotSpot(TM) 64-Bit Server VM (23.25-b01) for windows-amd64 JRE (1.7.0_25-b17), built on Jun 21 2013 12:58:32 by "java_re" with unknown MS VC++:1600
+
+time: Fri Jan 17 00:52:26 2014
+elapsed time: 0 seconds
+

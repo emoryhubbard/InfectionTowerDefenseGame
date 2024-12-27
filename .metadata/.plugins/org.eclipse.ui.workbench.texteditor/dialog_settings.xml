@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
+		<item value="257" key="DIALOG_WIDTH"/>
+		<item value="164" key="DIALOG_Y_ORIGIN"/>
+		<item value="671" key="DIALOG_X_ORIGIN"/>
+		<item value="380" key="DIALOG_HEIGHT"/>
+		<item value="1|Segoe UI|9.0|0|WINDOWS|1|-12|0|0|0|400|0|0|0|1|0|0|0|0|Segoe UI" key="DIALOG_FONT_NAME"/>
+	</section>
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
+		<item value="true" key="wrap"/>
+		<item value="true" key="casesensitive"/>
+		<item value="false" key="isRegEx"/>
+		<item value="false" key="incremental"/>
+		<item value="false" key="wholeword"/>
+		<item value="Assets.tintBatcher." key="selection"/>
+		<list key="findhistory">
+			<item value="batcher."/>
+			<item value="fpsCounter"/>
+			<item value=":"/>
+			<item value="LinkedList"/>
+			<item value="particle."/>
+			<item value="&lt;T&gt;"/>
+			<item value="T"/>
+			<item value="f11"/>
+		</list>
+		<list key="replacehistory">
+			<item value="Assets.tintBatcher."/>
+			<item value="ArrayList"/>
+			<item value=""/>
+			<item value="&lt;Particle&gt;"/>
+			<item value="Particle"/>
+			<item value="&lt;ThrobberVaporParticle&gt;"/>
+			<item value="ThrobberVaporParticle"/>
+			<item value="model.copyModel(model, model.name)"/>
+		</list>
+	</section>
+	<section name="org.eclipse.ui.texteditor.GotoLineAction$GotoLineDialog_dialogBounds">
+		<item value="248" key="DIALOG_Y_ORIGIN"/>
+		<item value="452" key="DIALOG_X_ORIGIN"/>
+	</section>
+</section>

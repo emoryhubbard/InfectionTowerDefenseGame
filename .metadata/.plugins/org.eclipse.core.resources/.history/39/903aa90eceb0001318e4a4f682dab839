@@ -1,0 +1,137 @@
+package com.gdsoftworks.lillycam;
+
+import java.io.IOException;
+
+import android.content.Context;
+import android.hardware.Camera;
+import android.util.Log;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.LinearLayout;
+
+public class Preview extends ViewGroup implements SurfaceHolder.Callback {
+
+    SurfaceView mSurfaceView;
+    SurfaceHolder mHolder;
+    Camera mCamera;
+
+    @SuppressWarnings("deprecation")
+	Preview(Context context) {
+        super(context);
+
+        mSurfaceView = new SurfaceView(context);
+        addView(mSurfaceView);
+
+		Button b = new Button(context);
+		b.setText("Uplink");
+		b.setWidth(300);
+	    b.setOnClickListener(new OnClickListener() {
+	        public void onClick(View arg0) {
+	            mCamera.stopPreview();
+	            try {
+	            	mCamera.setPreviewDisplay(mHolder);
+					mCamera.startPreview();
+					mCamera.takePicture(null, null, null);
+					Log.d("lillycam", "captured frame");
+	            }
+	            catch (IOException e) {Log.e("lillycam", "Couldn't capture frame: "+e.getMessage());}
+	        }
+	    });
+		LinearLayout ui = new LinearLayout(context);
+		ui.addView(b);
+		addView(ui);
+        // Install a SurfaceHolder.Callback so we get notified when the
+        // underlying surface is created and destroyed.
+        mHolder = mSurfaceView.getHolder();
+        mHolder.addCallback(this);
+        mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+    }
+    public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
+        // Now that the size is known, set up the camera parameters and begin
+        // the preview.
+        //Camera.Parameters parameters = mCamera.getParameters();
+        //parameters.setPreviewSize(300, 300);
+        //requestLayout();
+        //mCamera.setParameters(parameters);
+    	if (mHolder.getSurface() == null){
+            // preview surface does not exist
+            return;
+          }
+    	try {
+            mCamera.stopPreview();
+        } catch (Exception e){
+          // ignore: tried to stop a non-existent preview
+        }
+    	try {
+            mCamera.setPreviewDisplay(mHolder);
+            mCamera.startPreview();
+
+        } catch (Exception e){
+            Log.d("lillycam", "Error starting camera preview: " + e.getMessage());
+        }
+    }
+
+	@Override
+	public void surfaceCreated(SurfaceHolder arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void onLayout(boolean arg0, int arg1, int arg2, int arg3, int arg4) {
+		// TODO Auto-generated method stub
+		
+	}
+	public void setCamera(Camera camera) {
+	    if (mCamera == camera) { return; }
+	    
+	    stopPreviewAndFreeCamera();
+	    
+	    mCamera = camera;
+	    
+	    if (mCamera != null) {
+	        requestLayout();
+	      
+	        try {
+	            mCamera.setPreviewDisplay(mHolder);
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	      
+	        // Important: Call startPreview() to start updating the preview
+	        // surface. Preview must be started before you can take a picture.
+	        mCamera.startPreview();
+	    }
+	}
+	public void surfaceDestroyed(SurfaceHolder holder) {
+	    // Surface will be destroyed when we return, so stop the preview.
+	    if (mCamera != null) {
+	        // Call stopPreview() to stop updating the preview surface.
+	        mCamera.stopPreview();
+	    }
+	}
+
+	/**
+	 * When this function returns, mCamera will be null.
+	 */
+	private void stopPreviewAndFreeCamera() {
+
+	    if (mCamera != null) {
+	        // Call stopPreview() to stop updating the preview surface.
+	        mCamera.stopPreview();
+	    
+	        // Important: Call release() to release the camera for use by other
+	        // applications. Applications should release the camera immediately
+	        // during onPause() and re-open() it during onResume()).
+	        mCamera.release();
+	    
+	        mCamera = null;
+	    }
+	}
+
+}
+

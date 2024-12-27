@@ -1,0 +1,23 @@
+1376258519773	Rename local variable 'theta'
+1376330461519	Rename package 'com.gdsoftworks.powerpong.shapelogic'
+1376330680139	Rename method 'xCoordinates'
+1376330700138	Rename method 'yCoordinates'
+1376354077534	Rename local variable 'xTheta'
+1376428157118	Rename field 'RED'
+1376428171985	Rename field 'GREEN'
+1376428186166	Rename field 'BLUE'
+1376428440118	Change method 'getColor'
+1376430159578	Rename local variable 'X'
+1376430170561	Rename local variable 'Y'
+1376443227619	Change method 'execute'
+1376443272155	Change method 'animate'
+1376445288091	Delete elements
+1376517687631	Delete element
+1376592724556	Delete element
+1376619050615	Rename local variable 'solution'
+1376629015749	Rename local variable 'min'
+1376629027714	Rename local variable 'max'
+1376629038870	Rename local variable 'otherMin'
+1376629055976	Rename local variable 'otherMax'
+1376694332848	Rename local variable 'intersection'
+1376703943926	Rename local variable 'j'

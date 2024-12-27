@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename local variable &apos;joint&apos; in &apos;gdsoftworks.kinematics.Model.remove(...)&apos; to &apos;model&apos;&#x0D;&#x0A;- Original project: &apos;Kinematics&apos;&#x0D;&#x0A;- Original element: &apos;gdsoftworks.kinematics.Model.remove(Object).joint&apos;&#x0D;&#x0A;- Renamed element: &apos;joint&apos;&#x0D;&#x0A;- Update references to refactored element" description="Rename local variable &apos;joint&apos;" id="org.eclipse.jdt.ui.rename.local.variable" input="/&lt;gdsoftworks.kinematics{Model.java[Model~remove~QObject;@joint!9234!9245!9241!9245!QObject;!0!true" name="model" references="true" stamp="1380160455860" version="1.0"/>
+</session>

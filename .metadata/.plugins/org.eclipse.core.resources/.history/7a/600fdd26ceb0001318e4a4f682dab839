@@ -1,0 +1,83 @@
+package com.gdsoftworks.lillycam;
+
+import android.os.Bundle;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
+import android.app.Activity;
+import android.content.Context;
+import android.hardware.Camera;
+import android.util.Log;
+import android.view.Menu;
+import android.view.Window;
+import android.widget.Button;
+
+public class MainActivity extends Activity {
+
+	WakeLock wakeLock;
+	volatile Camera mCamera = null; volatile Preview mPreview = null;
+	@SuppressWarnings("deprecation")
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+		PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK, "GLApp");
+		Button b = new Button(this);
+		b.setText("Uplink");
+		b.setWidth(300);
+		mPreview = new Preview(this);
+		safeCameraOpen(0);
+		mPreview.setCamera(mCamera);
+		setContentView(mPreview);
+	    /**b.setOnClickListener(new OnClickListener() {
+	        public void onClick(View arg0) {
+	            mCamera.stopPreview();
+	            try {
+	            	mCamera.setPreviewDisplay(mHolder);
+					mCamera.startPreview();
+					mCamera.takePicture(null, null, null);
+					Log.d("lillycam", "captured frame");
+	            }
+	            catch (IOException e) {Log.e("lillycam", "Couldn't capture frame: "+e.getMessage());}
+	        }
+	    });**/
+	}
+	public void onPause() {
+		wakeLock.release(); super.onPause();
+		if (mCamera!=null) mCamera.release();
+	}
+	public void onResume() {
+		super.onResume(); wakeLock.acquire();
+		if (mCamera!=null) safeCameraOpen(0);
+	}
+	public boolean safeCameraOpen(int id) {
+	    boolean qOpened = false;
+	  
+	    try {
+	        releaseCameraAndPreview();
+	        mCamera = Camera.open(id);
+	        qOpened = (mCamera != null);
+	    } catch (Exception e) {
+	        Log.e("lillycam", "failed to open Camera");
+	        e.printStackTrace();
+	    }
+
+	    return qOpened;    
+	}
+
+	private void releaseCameraAndPreview() {
+	    mPreview.setCamera(null);
+	    if (mCamera != null) {
+	        mCamera.release();
+	        mCamera = null;
+	    }
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
+
+}
